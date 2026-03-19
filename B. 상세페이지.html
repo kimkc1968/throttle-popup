@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>스로틀 이용 매뉴얼 | 배달장부</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap');
+        body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; color: #1e293b; overflow-x: hidden; }
+        
+        /* 탭 디자인 */
+        .nav-tab {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .nav-tab.active {
+            background-color: #0056FF;
+            color: white;
+            border-color: #0056FF;
+            box-shadow: 0 4px 12px rgba(0, 86, 255, 0.2);
+        }
+
+        /* 섹션 애니메이션 */
+        .manual-section {
+            display: none;
+            animation: slideUp 0.3s ease-out forwards;
+        }
+        .manual-section.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 이미지 공통 스타일 */
+        .manual-img {
+            width: 100%;
+            max-width: 360px;
+            border-radius: 1.5rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            display: block;
+            margin-top: 1rem;
+        }
+
+        /* PC용 반응형 레이아웃 */
+        @media (min-width: 768px) {
+            .step-item {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+                align-items: start;
+                padding: 32px 0;
+                border-bottom: 1px solid #f1f5f9;
+            }
+            .manual-img { margin-top: 0; }
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="pb-32">
+
+    <header class="sticky top-0 z-50 bg-white border-b border-gray-100 px-5 py-4">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button onclick="window.close();" class="text-gray-400 active:scale-90 transition-transform">
+                    <i class="fa-solid fa-chevron-left text-lg"></i>
+                </button>
+                <h1 class="text-lg font-bold text-gray-900">스로틀 이용 매뉴얼</h1>
+            </div>
+            <div class="text-[#0056FF] text-sm font-black tracking-tighter italic">Throttle</div>
+        </div>
+    </header>
+
+    <nav class="sticky top-[61px] z-40 bg-white border-b border-gray-100 p-3 overflow-x-auto no-scrollbar">
+        <div class="max-w-5xl mx-auto flex md:justify-center gap-2">
+            <button onclick="switchTab('manual-link', this)" class="nav-tab active px-4 py-2.5 rounded-full text-xs font-bold border border-gray-100 text-gray-500">1. 기본 연동 방법</button>
+            <button onclick="switchTab('manual-link-a', this)" class="nav-tab px-4 py-2.5 rounded-full text-xs font-bold border border-gray-100 text-gray-500">2. 연락처 변경 시 연동방법</button>
+            <button onclick="switchTab('manual-withdraw', this)" class="nav-tab px-4 py-2.5 rounded-full text-xs font-bold border border-gray-100 text-gray-500">3. 출금 방법</button>
+            <button onclick="switchTab('manual-history', this)" class="nav-tab px-4 py-2.5 rounded-full text-xs font-bold border border-gray-100 text-gray-500">4. 내역 조회</button>
+            <button onclick="switchTab('manual-deduct', this)" class="nav-tab px-4 py-2.5 rounded-full text-xs font-bold border border-gray-100 text-gray-500">5. 차감 승인</button>
+            <button onclick="switchTab('manual-deduct-list', this)" class="nav-tab px-4 py-2.5 rounded-full text-xs font-bold border border-gray-100 text-gray-500">6. 차감 현황</button>
+            <button onclick="switchTab('manual-account', this)" class="nav-tab px-4 py-2.5 rounded-full text-xs font-bold border border-gray-100 text-gray-500">7. 계좌 수정</button>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-5 pt-8">
+        
+        <section id="manual-link" class="manual-section active">
+            <div class="bg-blue-600 text-white p-6 md:p-10 rounded-3xl shadow-lg shadow-blue-100 mb-10">
+                <h2 class="text-xl md:text-2xl font-bold mb-2">배달장부 연동하기</h2>
+                <p class="text-sm md:text-base opacity-90 leading-relaxed">스로틀 앱과 배달장부를 연동하여 정산 내역을 실시간으로 관리해 보세요.</p>
+            </div>
+            <div class="space-y-10 md:space-y-0">
+                <div class="step-item">
+                    <div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-[10px] font-bold">1</span>
+                            <h3 class="font-bold text-gray-900 text-lg">지갑 메뉴 진입</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm">메인 화면의 <span class="font-bold text-blue-600">[지갑]</span> 버튼을 클릭합니다.</p>
+                    </div>
+                    <img src="chapter 1-1.png" class="manual-img" alt="지갑 메뉴">
+                </div>
+                <div class="step-item border-none">
+                    <div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-[10px] font-bold">2</span>
+                            <h3 class="font-bold text-gray-900 text-lg">플랫폼 추가</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm">지갑 화면 우측 상단의 <span class="font-bold text-red-500">[플랫폼 추가]</span>를 클릭합니다.</p>
+                    </div>
+                    <img src="chapter 1-2.png" class="manual-img" alt="플랫폼 추가">
+                </div>
+            </div>
+            <div class="step-item border-none">
+                    <div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-[10px] font-bold">3</span>
+                            <h3 class="font-bold text-gray-900 text-lg">플랫폼 선택</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm">화면 하단에 나타난 바텀시트에서 <span class="font-bold text-blue-500">[배달 장부]</span>를 클릭합니다.</p>
+                    </div>
+                    <img src="chapter 1-3.png" class="manual-img" alt="플랫폼 선택">
+                </div>
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-[10px] font-bold">4</span>
+                        <h3 class="font-bold text-gray-900 text-lg">즉시 연동</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">계정 연동을 위해 <span class="font-bold text-red-500">[즉시연동]</span>을 클릭합니다.</p>
+                </div>
+                <img src="chapter 1-4.png" class="manual-img" alt="즉시 연동">
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-[10px] font-bold">5</span>
+                        <h3 class="font-bold text-gray-900 text-lg">연동 완료</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">연동이 <span class="font-bold text-red-500">완료</span>되었습니다</p>
+                </div>
+                <img src="chapter 1-6.png" class="manual-img" alt="연동 완료">
+            </div>
+        </div>
+        </section>
+
+        <section id="manual-link-a" class="manual-section">
+            <div class="bg-emerald-600 text-white p-6 md:p-10 rounded-3xl mb-10">
+                <h2 class="text-xl md:text-2xl font-bold mb-2">핸드폰 번호 변경 시 연동 방법</h2>
+                <p class="text-sm md:text-base opacity-90">핸드폰 번호 변경 시, 스로틀 앱과 재연동을 시도하세요.</p>
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-emerald-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">1</span>
+                        <h3 class="font-bold text-gray-900 text-lg">지갑 메뉴 진입</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">메인 화면의 <span class="font-bold text-emerald-600">[지갑]</span> 버튼을 클릭합니다.</p>
+                </div>
+                <img src="chapter 7-1.png" class="manual-img" alt="지갑 메뉴 진입-1">
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-emerald-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">2</span>
+                        <h3 class="font-bold text-gray-900 text-lg">플랫폼 추가</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">지갑 화면 우측 상단의 <span class="font-bold text-emerald-500">[플랫폼 추가]</span>를 클릭합니다.</p>
+                </div>
+                <img src="chapter 7-2.png" class="manual-img" alt="플랫폼 추가-1">
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-emerald-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">2</span>
+                        <h3 class="font-bold text-gray-900 text-lg">다른 번호로 본인 인증</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">계정 연동을 위해 <span class="font-bold text-emerald-500">[다른 번호로 본인 인증]</span>을 클릭합니다.</p>
+                </div>
+                <img src="chapter 7-3.png" class="manual-img" alt="다른 번호로 본인인증">
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-emerald-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">2</span>
+                        <h3 class="font-bold text-gray-900 text-lg">본인 인증</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">본인 인증을 위해 정보 입력 후 <span class="font-bold text-emerald-500">[인증하기]</span>를 클릭합니다.</p>
+                </div>
+                <img src="chapter 7-4.png" class="manual-img" alt="상세 내역 조회">
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-[10px] font-bold">5</span>
+                        <h3 class="font-bold text-gray-900 text-lg">연동 완료</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">연동이 <span class="font-bold text-emerald-500">완료</span>되었습니다</p>
+                </div>
+                <img src="chapter 7-5.png" class="manual-img" alt="연동 완료-1">
+            </div>
+        </section>
+    
+        <section id="manual-withdraw" class="manual-section">
+            <div class="bg-indigo-600 text-white p-6 md:p-10 rounded-3xl mb-10">
+                <h2 class="text-xl md:text-2xl font-bold mb-2">수익금 출금하기</h2>
+                <p class="text-sm md:text-base opacity-90">연동된 배달장부의 수익금을 클릭 몇 번으로 내 계좌에 입금합니다.</p>
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">1</span>
+                        <h3 class="font-bold text-gray-900 text-lg">출금 버튼 클릭</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">지갑 화면 배달장부 카드 하단의 <span class="font-bold text-indigo-600">[출금]</span> 버튼을 누릅니다.</p>
+                </div>
+                <img src="chapter 2-1.png" class="manual-img" alt="출금하기">
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">2</span>
+                        <h3 class="font-bold text-gray-900 text-lg">출금 금액 입력</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">출금하려는 금액을 입력 후 하단의 <span class="font-bold text-indigo-600">[다음]</span> 버튼을 누릅니다.</p>
+                </div>
+                <img src="chapter 2-2.png" class="manual-img" alt="출금 금액 입력">
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">3</span>
+                        <h3 class="font-bold text-gray-900 text-lg">입금 예정 금액 확인</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">수수료 확인 후 최종 입금 예정 금액을 확인 후 <span class="font-bold text-indigo-600">[출금하기]</span> 버튼을 누릅니다.</p>
+                </div>
+                <img src="chapter 2-3.png" class="manual-img" alt="입금 예정 금액 확인">
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">4</span>
+                        <h3 class="font-bold text-gray-900 text-lg">2차 비밀번호 입력</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">2차 비밀번호 입력하면 <span class="font-bold text-red-600">[출금 완료]</span> 됩니다.</p>
+                </div>
+                <img src="chapter 2-4.png" class="manual-img" alt="출금하기">
+            </div>
+        </section>
+
+
+        <section id="manual-history" class="manual-section">
+            <div class="bg-emerald-600 text-white p-6 md:p-10 rounded-3xl mb-10">
+                <h2 class="text-xl md:text-2xl font-bold mb-2">상세내역 조회하기</h2>
+                <p class="text-sm md:text-base opacity-90">내 정산금의 세부 항목과 일자별 입출금 기록을 확인하세요.</p>
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-emerald-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">1</span>
+                        <h3 class="font-bold text-gray-900 text-lg">배달장부 카드 클릭</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">지갑 메인에서 <span class="font-bold text-emerald-600">배달장부 영역</span>을 클릭해 상세 화면으로 이동합니다.</p>
+                </div>
+                <img src="chapter 3-1.png" class="manual-img" alt="상세 조회">
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-emerald-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">2</span>
+                        <h3 class="font-bold text-gray-900 text-lg">배달장부 상세 내역 조회</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">상세 내역에서 <span class="font-bold text-emerald-600">입출금 현황 및 각 정산금</span>확인이 가능합니다.</p>
+                </div>
+                <img src="chapter 3-2.png" class="manual-img" alt="상세 내역 조회">
+            </div>
+        </section>
+
+        <section id="manual-deduct" class="manual-section">
+            <div class="bg-rose-600 text-white p-6 md:p-10 rounded-3xl mb-10">
+                <h2 class="text-xl md:text-2xl font-bold mb-2">차감요청 승인하기</h2>
+                <p class="text-sm md:text-base opacity-90">협력사에서 보낸 차감 요청을 확인하고 정산금에서 공제되도록 승인합니다.</p>
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-rose-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">1</span>
+                        <h3 class="font-bold text-gray-900 text-lg">승인 배너 클릭</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">상세 화면 상단의 <span class="font-bold text-rose-600">[차감 요청 승인]</span> 배너를 클릭합니다.</p>
+                </div>
+                <img src="chapter 4-1.png" class="manual-img" alt="차감 승인">
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-rose-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">2</span>
+                        <h3 class="font-bold text-gray-900 text-lg">차감 요청 수락</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">차감 요청 내역을 확인 후 <span class="font-bold text-rose-600">[수락]</span> 버튼을 클릭합니다.</p>
+                </div>
+                <img src="chapter 4-2.png" class="manual-img" alt="차감 수락">
+            </div>
+        </section>
+
+        <section id="manual-deduct-list" class="manual-section">
+            <div class="bg-amber-600 text-white p-6 md:p-10 rounded-3xl mb-10">
+                <h2 class="text-xl md:text-2xl font-bold mb-2">차감현황 조회하기</h2>
+                <p class="text-sm md:text-base opacity-90">진행 중인 리스비, 보험료 등 차감 항목의 납부 현황을 확인하세요.</p>
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-amber-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">1</span>
+                        <h3 class="font-bold text-gray-900 text-lg">차감 관리 진입</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">상세 화면 중앙의 <span class="font-bold text-amber-600">[차감 관리]</span> 버튼을 누릅니다.</p>
+                </div>
+                <img src="chapter 5-1.png" class="manual-img" alt="차감 관리">
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-amber-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">2</span>
+                        <h3 class="font-bold text-gray-900 text-lg">차감 리스트 확인</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">차감 진행 중인 리스트 확인이 가능합니다. 상세 내역은 진행중인 <span class="font-bold text-amber-600">[카드]</span> 를 클릭합니다.</p>
+                </div>
+                <img src="chapter 5-2.png" class="manual-img" alt="차감 리스트">
+            </div>
+            <div class="step-item border-none">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-6 h-6 bg-amber-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">3</span>
+                        <h3 class="font-bold text-gray-900 text-lg">차감 내역 상세 확인</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">차감되고 있는 카드의 <span class="font-bold text-amber-600">[미납 및 차감 완료]</span> 내역 확인이 가능합니다.</p>
+                </div>
+                <img src="chapter 5-3.png" class="manual-img" alt="차감 상세 내역">
+            </div>
+        </section>
+
+        <section id="manual-account" class="manual-section">
+            <div class="bg-slate-600 text-white p-6 md:p-10 rounded-3xl mb-10">
+                <h2 class="text-xl md:text-2xl font-bold mb-2">계좌 수정하기</h2>
+                <p class="text-sm md:text-base opacity-90">정산금을 입금받을 은행 계좌 정보를 안전하고 간편하게 변경할 수 있습니다.</p>
+            </div>
+            
+            <div class="space-y-12 md:space-y-0">
+                <div class="step-item">
+                    <div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="w-6 h-6 bg-slate-700 text-white rounded-full flex items-center justify-center text-[10px] font-bold">1</span>
+                            <h3 class="font-bold text-gray-900 text-lg">더보기 아이콘 클릭</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm leading-relaxed">지갑 메인 화면에서 배달장부 카드 왼쪽의 <span class="font-bold text-slate-700">더보기(⋮)</span> 아이콘을 누릅니다.</p>
+                    </div>
+                    <img src="chapter 6-0.png" class="manual-img">
+                </div>
+
+                <div class="step-item">
+                    <div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="w-6 h-6 bg-slate-700 text-white rounded-full flex items-center justify-center text-[10px] font-bold">2</span>
+                            <h3 class="font-bold text-gray-900 text-lg">계좌 수정 메뉴 선택</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm leading-relaxed">메뉴 목록에서 <span class="font-bold text-blue-600">[계좌 수정]</span>을 클릭합니다. (계좌 삭제나 연동 해제도 이곳에서 가능합니다.)</p>
+                    </div>
+                    <img src="chapter 6-1.png" class="manual-img">
+                </div>
+
+                <div class="step-item">
+                    <div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="w-6 h-6 bg-slate-700 text-white rounded-full flex items-center justify-center text-[10px] font-bold">3</span>
+                            <h3 class="font-bold text-gray-900 text-lg">은행 및 계좌 정보 입력</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm leading-relaxed mb-4">계좌 등록 화면에서 <span class="font-bold">은행</span>을 선택하고, 본인 명의의 <span class="font-bold text-slate-700">계좌주 성함</span>과 <span class="font-bold text-slate-700">계좌번호</span>를 입력합니다.</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 md:block md:space-y-2">
+                        <img src="chapter 6-2.png" class="manual-img mt-0">
+                        <img src="chapter 6-3.png" class="manual-img mt-0">
+                    </div>
+                </div>
+
+                <div class="step-item border-none">
+                    <div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">4</span>
+                            <h3 class="font-bold text-gray-900 text-lg">정보 등록 완료</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm leading-relaxed">정보를 모두 입력했다면 하단의 <span class="font-bold text-blue-600">[등록]</span> 버튼을 클릭하여 수정을 마무리합니다.</p>
+                    </div>
+                    <img src="chapter 6-4.png" class="manual-img border-blue-200" style="background-color: #eff6ff;">
+                </div>
+            </div>
+        </section>
+
+        <div class="mt-20 p-8 bg-gray-100 rounded-3xl border border-gray-200 max-w-2xl mx-auto">
+            <h4 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-circle-question text-blue-500"></i>
+                도움말
+            </h4>
+            <ul class="text-sm text-gray-500 space-y-2">
+                <li>• 보안을 위해 본인 명의의 계좌만 등록 가능합니다.</li>
+                <li>• 계좌 정보가 불일치할 경우 출금이 거절될 수 있습니다.</li>
+            </ul>
+        </div>
+
+    </main>
+
+    <div class="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 z-50">
+        <div class="max-w-md mx-auto">
+            <button onclick="window.close();" class="w-full bg-gray-900 text-white font-bold py-4 rounded-2xl active:scale-95 transition-transform shadow-xl">
+                매뉴얼 닫기
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(sectionId, element) {
+            document.querySelectorAll('.manual-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+                tab.classList.add('text-gray-500');
+            });
+
+            document.getElementById(sectionId).classList.add('active');
+            element.classList.add('active');
+            element.classList.remove('text-gray-500');
+
+            element.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
